@@ -2,14 +2,23 @@ import React, { useContext, useEffect ,useState,useRef} from 'react'
 import noteContext from '../context/notes/noteContext';
 import Addnote from './Addnote';
 import Notesitem from './Notesitem';
+import {useNavigate} from "react-router-dom"
 
-const Notes = () => {
+const Notes = (props) => {
     const context = useContext(noteContext);
     const { notes, getNotes, editNote } = context;
     const [note, setnote] = useState({id:"",title: "", description: "", tag: "" });
+    let navigate = useNavigate();
 
     useEffect(() => {
-        getNotes();
+        if(localStorage.getItem("token"))
+        {
+            getNotes();
+        }
+        else
+        {
+            navigate("/login");
+        }
         // eslint-disable-next-line
     }, []);
     
@@ -24,6 +33,7 @@ const Notes = () => {
     const handleClick = (e) => {
         editNote(note.id,note.title, note.description, note.tag);
         refClose.current.click();
+        props.showAlert("Update Successful","success")
     }
 
     const OnChange = (e) => {
@@ -32,7 +42,7 @@ const Notes = () => {
 
     return (
         <>
-            <Addnote />
+            <Addnote showAlert = {props.showAlert}/>
 
             <button ref = {ref} type="button" className="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Launch demo modal
@@ -77,7 +87,7 @@ const Notes = () => {
                 {notes.length === 0 && "No notes to display"}
                 </div>
                 {notes.map((note) => {
-                    return <Notesitem key={note._id} updateNote ={updateNote} note={note} />;
+                    return <Notesitem key={note._id} updateNote ={updateNote} showAlert = {props.showAlert} note={note} />;
                 })}
             </div>
         </>
